@@ -13,7 +13,7 @@ import bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
 import { LoginDtoTs } from './dto/login.dto.ts.js';
 import { Response } from 'express';
-import { User } from 'src/db/schema.js';
+import type { User } from 'src/db/schema';
 
 @Injectable()
 export class AuthService {
@@ -111,7 +111,7 @@ export class AuthService {
     };
   }
 
-  async refresh(refreshToken: string, res: Response) {
+  async refresh(refreshToken: string | undefined, res: Response) {
     if (!refreshToken) {
       throw new UnauthorizedException('no refresh token provided');
     }
