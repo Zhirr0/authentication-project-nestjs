@@ -111,6 +111,52 @@ export class AuthService {
     };
   }
 
+  async forgotPassword(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      return {
+        message: 'if an account like this exists the email has been sent',
+      };
+    }
+
+    const resetToken = randomBytes(32).toString('hex');
+    const resetTokenExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    await this.usersService.update(user.id, {
+      resetToken,
+      resetTokenExpiresAt,
+    });
+
+    void this.emailService.sendPasswordResetEmail(user.email, resetToken);
+    return {
+      message: 'if an account like this exists the email has been sent',
+    };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const user = await this.usersService.findByResetToken(token);
+    if (!user || !user.resetToken) {
+      throw new BadRequestException('invalid reset token');
+    }
+
+    if (user.resetTokenExpiresAt && user.resetTokenExpiresAt < new Date()) {
+      throw new BadRequestException(
+        'reset token has expired. please request a new one',
+      );
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+
+    await this.usersService.update(user.id, {
+      passwordHash,
+      resetToken: null,
+      resetTokenExpiresAt: null,
+    });
+
+    return {
+      message: 'password reset successful. you can now log in',
+    };
+  }
+
   async refresh(refreshToken: string | undefined, res: Response) {
     if (!refreshToken) {
       throw new UnauthorizedException('no refresh token provided');

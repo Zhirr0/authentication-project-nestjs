@@ -30,6 +30,12 @@ export class UsersService {
     return user;
   }
 
+  async findByResetToken(token: string) {
+    return db.query.users.findFirst({
+      where: eq(users.verificationToken, token),
+    });
+  }
+
   async findByVerificationToken(token: string) {
     return db.query.users.findFirst({
       where: eq(users.verificationToken, token),
