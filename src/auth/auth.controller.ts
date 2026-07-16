@@ -112,6 +112,7 @@ export class AuthController {
   }
 
   // POST /api/auth/reset-password
+  @publicKey()
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'reset password using token from email' })
