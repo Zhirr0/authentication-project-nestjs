@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { EmailService } from './email/email.service';
 import { AuthService } from './auth/auth.service';
 import { AuthController } from './auth/auth.controller';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AuthController } from './auth/auth.controller';
       expandVariables: true,
     }),
     UsersModule,
+    AuthModule,
   ],
   providers: [UsersService, EmailService, AuthService],
   controllers: [UsersController, AuthController],
