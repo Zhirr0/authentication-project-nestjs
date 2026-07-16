@@ -11,6 +11,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { RolesGuard } from './roles/roles.guard';
+import { TasksModule } from './tasks/tasks.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { RolesGuard } from './roles/roles.guard';
     JwtModule.register({ global: true }),
     UsersModule,
     AuthModule,
+    TasksModule,
+    AdminModule,
   ],
   providers: [
     UsersService,
