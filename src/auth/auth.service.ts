@@ -134,6 +134,7 @@ export class AuthService {
 
   async resetPassword(token: string, newPassword: string) {
     const user = await this.usersService.findByResetToken(token);
+
     if (!user || !user.resetToken) {
       throw new BadRequestException('invalid reset token');
     }
