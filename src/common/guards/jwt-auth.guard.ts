@@ -38,7 +38,9 @@ export class JwtAuthGuard implements CanActivate {
     const request = context
       .switchToHttp()
       .getRequest<Request & { user: User }>();
-    const token = this.extractTokenFromHeader(request);
+    const token =
+      this.extractTokenFromHeader(request) ??
+      this.extractTokenFromCookie(request);
 
     if (!token) {
       throw new UnauthorizedException('no access token provided');
@@ -68,7 +70,7 @@ export class JwtAuthGuard implements CanActivate {
     const authorizationHeader = req.headers.authorization;
 
     if (!authorizationHeader) {
-      throw new UnauthorizedException('not authorized token');
+      return undefined;
     }
 
     const [type, token] = authorizationHeader.split(' ');
@@ -78,5 +80,20 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     return token;
+  }
+
+  private extractTokenFromCookie(req: Request): string | undefined {
+    const cookies = (req as Request & { cookies?: Record<string, unknown> })
+      .cookies;
+    const accessToken =
+      typeof cookies?.access_token === 'string'
+        ? cookies.access_token
+        : undefined;
+
+    if (!accessToken) {
+      return undefined;
+    }
+
+    return accessToken;
   }
 }

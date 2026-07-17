@@ -73,6 +73,15 @@ export class AuthService {
     await this.usersService.update(userId, { refreshTokenHash });
   }
 
+  private setAccessTokenCookie(res: Response, accessToken: string) {
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      sameSite: 'lax',
+      maxAge: 15 * 60 * 1000,
+    });
+  }
+
   private setRefreshTokenCookie(res: Response, refreshToken: string) {
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
@@ -99,6 +108,7 @@ export class AuthService {
 
     const tokens = await this.generateTokens(user);
     await this.saveRefreshToken(user.id, tokens.refreshToken);
+    this.setAccessTokenCookie(res, tokens.accessToken);
     this.setRefreshTokenCookie(res, tokens.refreshToken);
     return {
       accessToken: tokens.accessToken,
@@ -188,6 +198,7 @@ export class AuthService {
 
     const tokens = await this.generateTokens(user);
     await this.saveRefreshToken(user.id, tokens.refreshToken);
+    this.setAccessTokenCookie(res, tokens.accessToken);
     this.setRefreshTokenCookie(res, tokens.refreshToken);
 
     return {
@@ -197,6 +208,7 @@ export class AuthService {
 
   async logout(userId: string, res: Response) {
     await this.usersService.update(userId, { refreshTokenHash: null });
+    res.clearCookie('access_token');
     res.clearCookie('refresh_token');
     return { message: 'logged out successfully ' };
   }
@@ -226,6 +238,7 @@ export class AuthService {
     const tokens = await this.generateTokens(user);
 
     await this.saveRefreshToken(user.id, tokens.refreshToken);
+    this.setAccessTokenCookie(res, tokens.accessToken);
     this.setRefreshTokenCookie(res, tokens.refreshToken);
 
     return {
